@@ -3,17 +3,15 @@
 # Create name of project
 echo "Please provide a name for this directory"
 read Project_Name
-echo "$Project_Name initializing..."
+echo "▶️ Working...Setting Up Initial Project Details"
 
 # Create project directory with name
-mkdir -p "$Project_Name"
+mkdir -p "$Project_Name" > /dev/null 2>&1
 cd "$Project_Name"
 
 # Create the web API base project
-dotnet new webapi
-
-# Check in with the user to explain what's happening
-echo "▶️ Setting up new project with React frontend, C# .NET backend, and PostgreSQL database..."
+dotnet new webapi > /dev/null 2>&1
+echo "▶️ Setting up C# ASP.NET Core Web API..."
 
 # Create proper .gitignore (the webapi template doesn't include one)
 cat > .gitignore << 'EOF'
@@ -51,6 +49,7 @@ npm-debug.log
 *.db
 *.sqlite
 EOF
+echo "▶️ Configuring project dependencies and packages..."
 
 # Update .csproj to include required packages 
 cat > ${Project_Name}.csproj << EOF
@@ -58,7 +57,7 @@ cat > ${Project_Name}.csproj << EOF
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
-    <UserSecretsId>$(uuidgen || echo "26010f83-55be-4533-b0b6-5e84b427661a")</UserSecretsId>
+    <UserSecretsId>26010f83-55be-4533-b0b6-5e84b427661a</UserSecretsId>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.0" />
@@ -71,6 +70,7 @@ cat > ${Project_Name}.csproj << EOF
   </ItemGroup>
 </Project>
 EOF
+echo "▶️ Setting up authentication and authorization..."
 
 # Replace the default Program.cs with your custom version
 cat > Program.cs << EOF
@@ -166,11 +166,13 @@ app.MapControllers();
 
 app.Run();
 EOF
+echo "▶️ Configuring database connection..."
 
 # Ask for database connection information
 echo "Please enter your PostgreSQL database password:"
 read -s DB_PASSWORD  # -s flag hides the password input
 echo ""  # add a new line after password entry
+echo "▶️ Working...This Will Take A Minute"
 
 # Create appsettings.json with user-provided password
 cat > appsettings.json << EOF
@@ -186,9 +188,11 @@ cat > appsettings.json << EOF
   "AdminPassword": "Admin8*"
 }
 EOF
+echo "▶️ Setting up models and data entities..."
 
 # Create Models directory and files
-mkdir -p Models/DTOs
+mkdir -p Models/DTOs > /dev/null 2>&1
+
 
 # Create UserProfile model
 cat > Models/UserProfile.cs << EOF
@@ -241,9 +245,10 @@ public class RegistrationDTO
     public string Address { get; set; }
 }
 EOF
+echo "▶️ Configuring Entity Framework database context..."
 
 # Create Data directory and DbContext
-mkdir -p Data
+mkdir -p Data > /dev/null 2>&1
 
 cat > "Data/${Project_Name}DbContext.cs" << EOF
 using Microsoft.EntityFrameworkCore;
@@ -298,9 +303,10 @@ public class ${Project_Name}DbContext : IdentityDbContext<IdentityUser>
     }
 }
 EOF
+echo "▶️ Generating API controllers..."
 
 # Create Controllers directory and controllers
-mkdir -p Controllers
+mkdir -p Controllers > /dev/null 2>&1
 
 cat > Controllers/AuthController.cs << EOF
 using Microsoft.AspNetCore.Authentication;
@@ -468,6 +474,7 @@ public class AuthController : ControllerBase
     }
 }
 EOF
+echo "▶️ C# backend setup complete. Setting up React frontend..."
 
 cat > Controllers/UserProfileController.cs << EOF
 using Microsoft.AspNetCore.Authorization;
@@ -512,9 +519,9 @@ public class UserProfileController : ControllerBase
 EOF
 
 # Setting up Client directory structure
-mkdir -p Client/public
-mkdir -p Client/src/components/auth
-mkdir -p Client/src/managers
+mkdir -p Client/public > /dev/null 2>&1
+mkdir -p Client/src/components/auth > /dev/null 2>&1
+mkdir -p Client/src/managers > /dev/null 2>&1
 
 # Set up Client files
 cd Client
@@ -628,13 +635,11 @@ User-agent: *
 Disallow:
 EOF
 
-echo "Note: You may want to add a favicon.ico file to the public directory"
-
 cd ..
 
 # Create src directory structure for the managers folder
-mkdir -p src/managers
-mkdir -p src/components/auth
+mkdir -p src/managers > /dev/null 2>&1
+mkdir -p src/components/auth > /dev/null 2>&1
 
 # Create CSS files
 touch src/index.css
@@ -734,9 +739,9 @@ function App() {
     </>
   );
 }
-
 export default App;
 EOF
+
 
 # Create component files
 # Create generic ApplicationViews.jsx
@@ -946,7 +951,7 @@ export default function Login({ setLoggedInUser }) {
 EOF
 
 
- cat > src/components/auth/Register.jsx << 'EOF'
+cat > src/components/auth/Register.jsx << 'EOF'
 import { useState } from "react";
 import { register } from "../../managers/authManager";
 import { Link, useNavigate } from "react-router-dom";
@@ -1089,22 +1094,22 @@ EOF
 
 # Initialize npm and install dependencies
 echo "▶️ Initializing npm in the Client directory..."
-npm init -y
+npm init -y > /dev/null 2>&1
 
 # Install React and related dependencies
 echo "▶️ Installing React and core dependencies..."
-npm install react react-dom react-router-dom
+npm install react react-dom react-router-dom > /dev/null 2>&1
 
 # Install Reactstrap and Bootstrap
 echo "▶️ Installing Reactstrap and Bootstrap..."
-npm install reactstrap bootstrap
+npm install reactstrap bootstrap > /dev/null 2>&1
 
 # Install development dependencies like Vite
 echo "▶️ Installing development dependencies..."
-npm install -D vite @vitejs/plugin-react
+npm install -D vite @vitejs/plugin-react > /dev/null 2>&1
 
 # Add npm scripts to package.json for development
-sed -i 's/"scripts": {/"scripts": {\n    "dev": "vite",\n    "build": "vite build",\n    "preview": "vite preview",/g' package.json
+sed -i 's/"scripts": {/"scripts": {\n    "dev": "vite",\n    "build": "vite build",\n    "preview": "vite preview",/g' package.json > /dev/null 2>&1
 
 # Go back to the project root directory
 cd ..
@@ -1128,6 +1133,10 @@ echo "    dotnet ef migrations add InitialCreate"
 echo ""
 echo "3️⃣  Update the database:"
 echo "    dotnet ef database update"
+echo ""
+echo "4️⃣  Ensure the backend proxy in vite.config.js matches your API port:"
+echo "    The current setting is: https://localhost:5001"
+echo "    If your backend runs on a different port, update this value."
 echo ""
 echo "▶️  Run the backend:"
 echo "    dotnet run"
